@@ -46,7 +46,7 @@ void Tutorial12_RenderTarget::ModifyEngineInitInfo(const ModifyEngineInitInfoAtt
     SampleBase::ModifyEngineInitInfo(Attribs);
     // In this tutorial we will be using off-screen depth-stencil buffer, so
     // we do not need the one in the swap chain.
-    Attribs.SCDesc.DepthBufferFormat = TEX_FORMAT_UNKNOWN;
+    //Attribs.SCDesc.DepthBufferFormat = TEX_FORMAT_UNKNOWN; // For debug
 }
 
 void Tutorial12_RenderTarget::CreateCubePSO()
@@ -256,6 +256,15 @@ void Tutorial12_RenderTarget::WindowResize(Uint32 Width, Uint32 Height)
     m_pDevice->CreateTexture(RTDepthDesc, nullptr, &pRTDepth);
     // Store the depth-stencil view
     m_pDepthDSV = pRTDepth->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
+  
+    {   // For debug
+        CopyTextureAttribs CopyAttrs;
+        CopyAttrs.pSrcTexture              = m_pDepthDSV->GetTexture();
+        CopyAttrs.pDstTexture              = m_pSwapChain->GetDepthBufferDSV()->GetTexture();
+        CopyAttrs.SrcTextureTransitionMode = RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+        CopyAttrs.DstTextureTransitionMode = RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+        m_pImmediateContext->CopyTexture(CopyAttrs);
+    }
 
     // We need to release and create a new SRB that references new off-screen render target SRV
     m_pRTSRB.Release();
